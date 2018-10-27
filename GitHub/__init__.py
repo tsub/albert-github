@@ -3,7 +3,7 @@
 import json
 import os
 
-from albertv0 import Item, UrlAction
+from albertv0 import Item, UrlAction, cacheLocation
 from urllib import request
 
 __iid__ = "PythonInterface/v0.1"
@@ -15,13 +15,34 @@ __dependencies__ = []
 
 iconPath = "%s/%s.svg" % (os.path.dirname(__file__), __name__)
 baseUrl = "https://api.github.com"
+cachePath = cacheLocation() + "/" + __prettyname__ + ".json"
+
+
+def saveCache(repos):
+    with open(cachePath, mode="w") as f:
+        f.write(repos)
+
+
+def loadCache():
+    if not os.path.isfile(cachePath):
+        return
+
+    with open(cachePath) as f:
+        return f.read()
 
 
 def getRepositories():
-    # TODO: To cache reposonse
+    # TODO: Update cache
+    cachedData = loadCache()
+    if cachedData:
+        return json.loads(cachedData)
+
     req = request.Request(baseUrl + "/users/tsub/repos?per_page=20")
     with request.urlopen(req) as res:
-        return json.loads(res.read().decode())
+        data = res.read().decode()
+        saveCache(data)
+
+        return json.loads(data)
 
 
 def filterByQuery(repos, query):
