@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 
 from albertv0 import Item, UrlAction, cacheLocation
 from urllib import request
@@ -16,6 +17,16 @@ __dependencies__ = []
 iconPath = "%s/%s.svg" % (os.path.dirname(__file__), __name__)
 baseUrl = "https://api.github.com"
 cachePath = cacheLocation() + "/" + __prettyname__ + ".json"
+
+
+def parseLinkHeader(link_header):
+    links = [l.strip() for l in link_header.split(',')]
+    rels = {}
+    pattern = r'<(?P<url>.*)>;\s*rel="(?P<rel>.*)"'
+    for link in links:
+        group_dict = re.match(pattern, link).groupdict()
+        rels[group_dict['rel']] = group_dict['url']
+    return rels
 
 
 def saveCache(repos):
@@ -37,12 +48,23 @@ def getRepositories():
     if cachedData:
         return json.loads(cachedData)
 
-    req = request.Request(baseUrl + "/users/tsub/repos?per_page=20")
-    with request.urlopen(req) as res:
-        data = res.read().decode()
-        saveCache(data)
+    responses = []
 
-        return json.loads(data)
+    req = request.Request(baseUrl + "/users/tsub/repos?page=0&per_page=20")
+    with request.urlopen(req) as res:
+        links = parseLinkHeader(res.getheader("Link"))
+        responses.append(json.loads(res.read().decode()))
+
+    while "next" in links:
+        req = request.Request(links["next"])
+        with request.urlopen(req) as res:
+            links = parseLinkHeader(res.getheader("Link"))
+            responses.append(json.loads(res.read().decode()))
+
+    repos = [repo for repos in responses for repo in repos]
+    saveCache(json.dumps(repos))
+
+    return repos
 
 
 def filterByQuery(repos, query):
