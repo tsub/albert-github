@@ -1,9 +1,9 @@
 #!/bin/sh -eu
 
-PLUGIN_PATH="$HOME/.local/share/albert/org.albert.extension.python/modules/github.py"
+PLUGIN_PATH="$HOME/.local/share/albert/org.albert.extension.python/modules/GitHub"
 
-if [ -f $PLUGIN_PATH ]; then
+if [ -d $PLUGIN_PATH ]; then
   exit
 fi
 
-ln -s $PWD/github.py $PLUGIN_PATH
+ln -s $PWD/GitHub $PLUGIN_PATH

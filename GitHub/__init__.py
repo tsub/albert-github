@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import json
+import os
 
-from albertv0 import Item, iconLookup, UrlAction
+from albertv0 import Item, UrlAction
 from urllib import request
 
 __iid__ = "PythonInterface/v0.1"
@@ -12,7 +13,7 @@ __trigger__ = "gh "
 __author__ = "Tsubasa Takayama"
 __dependencies__ = []
 
-iconPath = iconLookup("user-trash-full")
+iconPath = "%s/%s.svg" % (os.path.dirname(__file__), __name__)
 baseUrl = "https://api.github.com"
 
 
