@@ -7,7 +7,7 @@ import re
 from albertv0 import Item, UrlAction, cacheLocation
 from urllib import request
 
-__iid__ = "PythonInterface/v0.1"
+__iid__ = "PythonInterface/v0.2"
 __prettyname__ = "GitHub"
 __version__ = "0.1"
 __trigger__ = "gh "
