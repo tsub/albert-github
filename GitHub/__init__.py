@@ -18,41 +18,50 @@ baseUrl = "https://api.github.com"
 
 
 def getRepositories():
+    # TODO: To cache reposonse
     req = request.Request(baseUrl + "/users/tsub/repos?per_page=20")
     with request.urlopen(req) as res:
         return json.loads(res.read().decode())
 
 
+def filterByQuery(repos, query):
+    return list(filter(lambda repo: repo["full_name"].find(query) > -1, repos))
+
+
+def appendItem(items, repo):
+    name = repo['full_name']
+    description = repo['description'] or ""
+    url = repo['html_url']
+
+    item = Item(id=__prettyname__,
+                icon=iconPath,
+                text=name,
+                subtext=description,
+                actions=[
+                   UrlAction("Open repository", url)
+                ])
+
+    return items + [item]
+
+
+def noResultItem():
+    return Item(id=__prettyname__,
+                icon=iconPath,
+                text="No results.")
+
+
 def handleQuery(query):
     if query.isTriggered:
         stripped = query.string.strip()
+        results = []
+        data = getRepositories()
 
-        if stripped:
-            # WIP
-            return Item(id=__prettyname__,
-                        icon=iconPath,
-                        text=query.string)
-        else:
-            results = []
+        repos = filterByQuery(data, stripped) if stripped else data
 
-            data = getRepositories()
+        for repo in repos:
+            results = appendItem(results, repo)
 
-            for repo in data:
-                name = repo['full_name']
-                description = repo['description'] or ""
-                url = repo['html_url']
+        if results:
+            return results
 
-                results.append(Item(id=__prettyname__,
-                                    icon=iconPath,
-                                    text=name,
-                                    subtext=description,
-                                    actions=[
-                                       UrlAction("Open repository", url)
-                                    ]))
-
-            if results:
-                return results
-
-            return Item(id=__prettyname__,
-                        icon=iconPath,
-                        text="No results.")
+        return noResultItem()
