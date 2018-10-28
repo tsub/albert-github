@@ -4,7 +4,7 @@ import json
 import os
 import re
 
-from albertv0 import Item, UrlAction, cacheLocation
+from albertv0 import Item, UrlAction, FuncAction, cacheLocation
 from urllib import request
 
 __iid__ = "PythonInterface/v0.2"
@@ -16,7 +16,9 @@ __dependencies__ = []
 
 iconPath = "%s/%s.svg" % (os.path.dirname(__file__), __name__)
 baseUrl = "https://api.github.com"
-cachePath = cacheLocation() + "/" + __prettyname__ + ".json"
+filePrefix = "{0}/{1}_".format(cacheLocation(), __prettyname__)
+cachePath = filePrefix + "cache.json"
+accessTokenPath = filePrefix + "access_token"
 
 
 def parseLinkHeader(link_header):
@@ -42,16 +44,32 @@ def loadCache():
         return f.read()
 
 
-def fetchRepositories(endpoint):
+def saveAccessToken(accessToken):
+    with open(accessTokenPath, mode="w") as f:
+        f.write(accessToken)
+
+
+def loadAccessToken():
+    if not os.path.isfile(accessTokenPath):
+        return
+
+    with open(accessTokenPath) as f:
+        return f.read()
+
+
+def fetchRepositories(endpoint, accessToken):
     responses = []
 
-    req = request.Request(endpoint + "?page=0&per_page=20")
+    headers = {
+            "Authorization": "token {0}".format(accessToken)
+    }
+    req = request.Request(endpoint + "?page=0&per_page=100", headers=headers)
     with request.urlopen(req) as res:
         links = parseLinkHeader(res.getheader("Link"))
         responses.append(json.loads(res.read().decode()))
 
     while "next" in links:
-        req = request.Request(links["next"])
+        req = request.Request(links["next"], headers=headers)
         with request.urlopen(req) as res:
             links = parseLinkHeader(res.getheader("Link"))
             responses.append(json.loads(res.read().decode()))
@@ -59,23 +77,23 @@ def fetchRepositories(endpoint):
     return responses
 
 
-def fetchMyRepositories():
-    return fetchRepositories(baseUrl + "/users/tsub/repos")
+def fetchMyRepositories(accessToken):
+    return fetchRepositories(baseUrl + "/user/repos", accessToken)
 
 
-def fetchStarredRepositories():
-    return fetchRepositories(baseUrl + "/users/tsub/starred")
+def fetchStarredRepositories(accessToken):
+    return fetchRepositories(baseUrl + "/user/starred", accessToken)
 
 
-def loadRepositories():
+def loadRepositories(accessToken):
     # TODO: Update cache
     cachedData = loadCache()
     if cachedData:
         return json.loads(cachedData)
 
     multiResponses = []
-    multiResponses.append(fetchMyRepositories())
-    multiResponses.append(fetchStarredRepositories())
+    multiResponses.append(fetchMyRepositories(accessToken))
+    multiResponses.append(fetchStarredRepositories(accessToken))
 
     repos = [repo for responses in multiResponses for repos in responses for repo in repos]
     saveCache(json.dumps(repos))
@@ -112,10 +130,28 @@ def noResultItem():
 def handleQuery(query):
     if query.isTriggered:
         stripped = query.string.strip()
+
+        # TODO: Allow updating access token
+        accessToken = loadAccessToken()
+        if not accessToken:
+            if stripped:
+                return Item(id=__prettyname__,
+                            icon=iconPath,
+                            text="Save your GitHub access token",
+                            subtext="Require scope is \"repo\".",
+                            actions=[
+                                FuncAction("Save your GitHub access token", lambda: saveAccessToken(stripped))
+                            ])
+            else:
+                return Item(id=__prettyname__,
+                            icon=iconPath,
+                            text="Please type your GitHub access token",
+                            subtext="Require scope is \"repo\".")
+
         results = []
 
         try:
-            data = loadRepositories()
+            data = loadRepositories(accessToken)
         except Exception as err:
             return Item(id=__prettyname__,
                         icon=iconPath,
