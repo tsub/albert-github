@@ -4,7 +4,7 @@ import json
 import os
 import re
 
-from albertv0 import Item, UrlAction, FuncAction, cacheLocation
+from albertv0 import Item, UrlAction, FuncAction, ProcAction, cacheLocation
 from urllib import request
 
 __iid__ = "PythonInterface/v0.2"
@@ -169,3 +169,14 @@ def handleQuery(query):
             return results
 
         return noResultItem()
+
+    if query.string.startswith("g"):
+        return Item(id=__prettyname__,
+                    icon=iconPath,
+                    text="gh",
+                    subtext="Open GitHub repositories in browser",
+                    completion="gh ",
+                    actions=[
+                        ProcAction("Complete gh trigger", [
+                                   "albert", "show", "gh "])
+                    ])
