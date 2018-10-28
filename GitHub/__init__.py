@@ -61,7 +61,7 @@ def fetchRepositories(endpoint, accessToken):
     responses = []
 
     headers = {
-            "Authorization": "token {0}".format(accessToken)
+        "Authorization": "token {0}".format(accessToken)
     }
     req = request.Request(endpoint + "?page=0&per_page=100", headers=headers)
     with request.urlopen(req) as res:
@@ -95,7 +95,8 @@ def loadRepositories(accessToken):
     multiResponses.append(fetchMyRepositories(accessToken))
     multiResponses.append(fetchStarredRepositories(accessToken))
 
-    repos = [repo for responses in multiResponses for repos in responses for repo in repos]
+    repos = [
+        repo for responses in multiResponses for repos in responses for repo in repos]
     saveCache(json.dumps(repos))
 
     return repos
@@ -115,7 +116,7 @@ def appendItem(items, repo):
                 text=name,
                 subtext=description,
                 actions=[
-                   UrlAction("Open repository", url)
+                    UrlAction("Open repository", url)
                 ])
 
     return items + [item]
@@ -140,7 +141,8 @@ def handleQuery(query):
                             text="Save your GitHub access token",
                             subtext="Require scope is \"repo\".",
                             actions=[
-                                FuncAction("Save your GitHub access token", lambda: saveAccessToken(stripped))
+                                FuncAction("Save your GitHub access token",
+                                           lambda: saveAccessToken(stripped))
                             ])
             else:
                 return Item(id=__prettyname__,
