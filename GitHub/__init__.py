@@ -42,15 +42,10 @@ def loadCache():
         return f.read()
 
 
-def getRepositories():
-    # TODO: Update cache
-    cachedData = loadCache()
-    if cachedData:
-        return json.loads(cachedData)
-
+def fetchRepositories(endpoint):
     responses = []
 
-    req = request.Request(baseUrl + "/users/tsub/repos?page=0&per_page=20")
+    req = request.Request(endpoint + "?page=0&per_page=20")
     with request.urlopen(req) as res:
         links = parseLinkHeader(res.getheader("Link"))
         responses.append(json.loads(res.read().decode()))
@@ -61,7 +56,28 @@ def getRepositories():
             links = parseLinkHeader(res.getheader("Link"))
             responses.append(json.loads(res.read().decode()))
 
-    repos = [repo for repos in responses for repo in repos]
+    return responses
+
+
+def fetchMyRepositories():
+    return fetchRepositories(baseUrl + "/users/tsub/repos")
+
+
+def fetchStarredRepositories():
+    return fetchRepositories(baseUrl + "/users/tsub/starred")
+
+
+def loadRepositories():
+    # TODO: Update cache
+    cachedData = loadCache()
+    if cachedData:
+        return json.loads(cachedData)
+
+    multiResponses = []
+    multiResponses.append(fetchMyRepositories())
+    multiResponses.append(fetchStarredRepositories())
+
+    repos = [repo for responses in multiResponses for repos in responses for repo in repos]
     saveCache(json.dumps(repos))
 
     return repos
@@ -97,7 +113,14 @@ def handleQuery(query):
     if query.isTriggered:
         stripped = query.string.strip()
         results = []
-        data = getRepositories()
+
+        try:
+            data = loadRepositories()
+        except Exception as err:
+            return Item(id=__prettyname__,
+                        icon=iconPath,
+                        text="Error.",
+                        subtext=str(err))
 
         repos = filterByQuery(data, stripped) if stripped else data
 
