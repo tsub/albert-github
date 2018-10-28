@@ -1,4 +1,4 @@
-# Albert plugin for GitHub
+# Albert extension for GitHub
 
 Open GitHub repository in browser with [Albert].
 
