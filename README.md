@@ -45,14 +45,16 @@ Open GitHub repository in browser with [Albert].
 
 ### I want to change the saved GitHub access token
 
+1. Please type `gh >` in Albert
 1. Delete your saved GitHub access token
 
     ![image](https://gyazo.com/81064b6a07399bb1cbd7395c8615b4ff.png)
 
-1. Then [reconfigure](#Configuration)
+1. Then [reconfigure](#Configuration) after deleted
 
 ### Repository list is not up to date
 
+1. Please type `gh >` in Albert
 1. Delete cached repositories
 
     ![image](https://gyazo.com/bd0b9de6be8c11b3f62b117d9114b9e7.png)
