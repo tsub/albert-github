@@ -48,7 +48,7 @@ Open GitHub repository in browser with [Albert].
 1. Please type `gh >` in Albert
 1. Delete your saved GitHub access token
 
-    ![image](https://gyazo.com/81064b6a07399bb1cbd7395c8615b4ff.png)
+    ![image](https://gyazo.com/36f87b2ce2ae957db40dbf04b1212fb9.png)
 
 1. Then [reconfigure](#Configuration) after deleted
 
