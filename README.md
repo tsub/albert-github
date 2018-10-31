@@ -53,12 +53,10 @@ Open GitHub repository in browser with [Albert].
 
 ### Repository list is not up to date
 
-I have not implemented cache update yet.
+1. Delete cached repositories
 
-Instead, delete the cache once.
+    ![image](https://gyazo.com/bd0b9de6be8c11b3f62b117d9114b9e7.png)
 
-```
-$ rm ~/.cache/albert/GitHub_cache.json
-```
+1. Then [refetch repositories](#Usage) after deleted
 
 [Albert]: https://albertlauncher.github.io

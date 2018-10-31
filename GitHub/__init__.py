@@ -44,6 +44,13 @@ def loadCache():
         return f.read()
 
 
+def deleteCache():
+    if not os.path.isfile(cachePath):
+        return
+
+    os.remove(cachePath)
+
+
 def saveAccessToken(accessToken):
     with open(accessTokenPath, mode="w") as f:
         f.write(accessToken)
@@ -93,7 +100,6 @@ def fetchStarredRepositories(accessToken):
 
 
 def loadRepositories(accessToken):
-    # TODO: Update cache
     cachedData = loadCache()
     if cachedData:
         return json.loads(cachedData)
@@ -158,6 +164,14 @@ def handleQuery(query):
 
         if stripped.startswith(">"):
             items = []
+            items.append(Item(id=__prettyname__,
+                              icon=iconPath,
+                              text="Delete cached repositories",
+                              subtext="Please refetch repositories after deleted. It takes a lot of time.",
+                              actions=[
+                                  FuncAction("Delete cached repositories",
+                                             lambda: deleteCache())
+                              ]))
             items.append(Item(id=__prettyname__,
                               icon=iconPath,
                               text="Delete your saved GitHub access token",
