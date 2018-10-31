@@ -57,6 +57,13 @@ def loadAccessToken():
         return f.read()
 
 
+def deleteAccessToken():
+    if not os.path.isfile(accessTokenPath):
+        return
+
+    os.remove(accessTokenPath)
+
+
 def fetchRepositories(endpoint, accessToken):
     responses = []
 
@@ -132,7 +139,6 @@ def handleQuery(query):
     if query.isTriggered:
         stripped = query.string.strip()
 
-        # TODO: Allow updating access token
         accessToken = loadAccessToken()
         if not accessToken:
             if stripped:
@@ -149,6 +155,19 @@ def handleQuery(query):
                             icon=iconPath,
                             text="Please type your GitHub access token",
                             subtext="Require scope is \"repo\".")
+
+        if stripped.startswith(">"):
+            items = []
+            items.append(Item(id=__prettyname__,
+                              icon=iconPath,
+                              text="Delete your saved GitHub access token",
+                              subtext="Please reconfigure your GitHub access token.",
+                              actions=[
+                                  FuncAction("Delete your saved GitHub access token",
+                                             lambda: deleteAccessToken())
+                              ]))
+
+            return items
 
         results = []
 

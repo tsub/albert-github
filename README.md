@@ -45,13 +45,11 @@ Open GitHub repository in browser with [Albert].
 
 ### I want to change the saved GitHub access token
 
-I am not implemented the function to update the saved GitHub access token yet with Albert.
+1. Delete your saved GitHub access token
 
-Please execute below command, then [reconfigure](#Configuration).
+    ![image](https://gyazo.com/81064b6a07399bb1cbd7395c8615b4ff.png)
 
-```
-$ rm ~/.cache/albert/GitHub_access_token
-```
+1. Then [reconfigure](#Configuration)
 
 ### Repository list is not up to date
 
