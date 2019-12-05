@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+"""Find GitHub repository
+Synopsis: <trigger> <query>"""
+
 import json
 import os
 import re
