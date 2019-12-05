@@ -12,7 +12,7 @@ from albertv0 import FuncAction, Item, ProcAction, UrlAction, cacheLocation
 
 __iid__ = "PythonInterface/v0.2"
 __prettyname__ = "GitHub"
-__version__ = "0.1"
+__version__ = "0.1.1"
 __trigger__ = "gh "
 __author__ = "Tsubasa Takayama"
 __dependencies__ = []
