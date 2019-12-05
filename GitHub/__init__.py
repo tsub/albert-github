@@ -6,9 +6,9 @@ Synopsis: <trigger> <query>"""
 import json
 import os
 import re
-
-from albertv0 import Item, UrlAction, FuncAction, ProcAction, cacheLocation
 from urllib import request
+
+from albertv0 import FuncAction, Item, ProcAction, UrlAction, cacheLocation
 
 __iid__ = "PythonInterface/v0.2"
 __prettyname__ = "GitHub"
@@ -25,12 +25,12 @@ accessTokenPath = filePrefix + "access_token"
 
 
 def parseLinkHeader(link_header):
-    links = [l.strip() for l in link_header.split(',')]
+    links = [l.strip() for l in link_header.split(",")]
     rels = {}
     pattern = r'<(?P<url>.*)>;\s*rel="(?P<rel>.*)"'
     for link in links:
         group_dict = re.match(pattern, link).groupdict()
-        rels[group_dict['rel']] = group_dict['url']
+        rels[group_dict["rel"]] = group_dict["url"]
     return rels
 
 
@@ -77,9 +77,7 @@ def deleteAccessToken():
 def fetchRepositories(endpoint, accessToken):
     responses = []
 
-    headers = {
-        "Authorization": "token {0}".format(accessToken)
-    }
+    headers = {"Authorization": "token {0}".format(accessToken)}
     req = request.Request(endpoint + "?page=0&per_page=100", headers=headers)
     with request.urlopen(req) as res:
         links = parseLinkHeader(res.getheader("Link"))
@@ -112,7 +110,8 @@ def loadRepositories(accessToken):
     multiResponses.append(fetchStarredRepositories(accessToken))
 
     repos = [
-        repo for responses in multiResponses for repos in responses for repo in repos]
+        repo for responses in multiResponses for repos in responses for repo in repos
+    ]
     saveCache(json.dumps(repos))
 
     return repos
@@ -123,25 +122,23 @@ def filterByQuery(repos, query):
 
 
 def appendItem(items, repo):
-    name = repo['full_name']
-    description = repo['description'] or ""
-    url = repo['html_url']
+    name = repo["full_name"]
+    description = repo["description"] or ""
+    url = repo["html_url"]
 
-    item = Item(id=__prettyname__,
-                icon=iconPath,
-                text=name,
-                subtext=description,
-                actions=[
-                    UrlAction("Open repository", url)
-                ])
+    item = Item(
+        id=__prettyname__,
+        icon=iconPath,
+        text=name,
+        subtext=description,
+        actions=[UrlAction("Open repository", url)],
+    )
 
     return items + [item]
 
 
 def noResultItem():
-    return Item(id=__prettyname__,
-                icon=iconPath,
-                text="No results.")
+    return Item(id=__prettyname__, icon=iconPath, text="No results.")
 
 
 def handleQuery(query):
@@ -151,38 +148,53 @@ def handleQuery(query):
         accessToken = loadAccessToken()
         if not accessToken:
             if stripped:
-                return Item(id=__prettyname__,
-                            icon=iconPath,
-                            text="Save your GitHub access token",
-                            subtext="Require scope is \"repo\".",
-                            actions=[
-                                FuncAction("Save your GitHub access token",
-                                           lambda: saveAccessToken(stripped))
-                            ])
+                return Item(
+                    id=__prettyname__,
+                    icon=iconPath,
+                    text="Save your GitHub access token",
+                    subtext='Require scope is "repo".',
+                    actions=[
+                        FuncAction(
+                            "Save your GitHub access token",
+                            lambda: saveAccessToken(stripped),
+                        )
+                    ],
+                )
             else:
-                return Item(id=__prettyname__,
-                            icon=iconPath,
-                            text="Please type your GitHub access token",
-                            subtext="Require scope is \"repo\".")
+                return Item(
+                    id=__prettyname__,
+                    icon=iconPath,
+                    text="Please type your GitHub access token",
+                    subtext='Require scope is "repo".',
+                )
 
         if stripped.startswith(">"):
             items = []
-            items.append(Item(id=__prettyname__,
-                              icon=iconPath,
-                              text="Delete cached repositories",
-                              subtext="Please refetch repositories after deleted. It takes a lot of time.",
-                              actions=[
-                                  FuncAction("Delete cached repositories",
-                                             lambda: deleteCache())
-                              ]))
-            items.append(Item(id=__prettyname__,
-                              icon=iconPath,
-                              text="Delete your saved GitHub access token",
-                              subtext="Please reconfigure your GitHub access token.",
-                              actions=[
-                                  FuncAction("Delete your saved GitHub access token",
-                                             lambda: deleteAccessToken())
-                              ]))
+            items.append(
+                Item(
+                    id=__prettyname__,
+                    icon=iconPath,
+                    text="Delete cached repositories",
+                    subtext="Please refetch repositories after deleted. It takes a lot of time.",
+                    actions=[
+                        FuncAction("Delete cached repositories", lambda: deleteCache())
+                    ],
+                )
+            )
+            items.append(
+                Item(
+                    id=__prettyname__,
+                    icon=iconPath,
+                    text="Delete your saved GitHub access token",
+                    subtext="Please reconfigure your GitHub access token.",
+                    actions=[
+                        FuncAction(
+                            "Delete your saved GitHub access token",
+                            lambda: deleteAccessToken(),
+                        )
+                    ],
+                )
+            )
 
             return items
 
@@ -191,10 +203,9 @@ def handleQuery(query):
         try:
             data = loadRepositories(accessToken)
         except Exception as err:
-            return Item(id=__prettyname__,
-                        icon=iconPath,
-                        text="Error.",
-                        subtext=str(err))
+            return Item(
+                id=__prettyname__, icon=iconPath, text="Error.", subtext=str(err)
+            )
 
         repos = filterByQuery(data, stripped) if stripped else data
 
@@ -207,12 +218,11 @@ def handleQuery(query):
         return noResultItem()
 
     if query.string.startswith("g"):
-        return Item(id=__prettyname__,
-                    icon=iconPath,
-                    text="gh",
-                    subtext="Open GitHub repositories in browser",
-                    completion="gh ",
-                    actions=[
-                        ProcAction("Complete gh trigger", [
-                                   "albert", "show", "gh "])
-                    ])
+        return Item(
+            id=__prettyname__,
+            icon=iconPath,
+            text="gh",
+            subtext="Open GitHub repositories in browser",
+            completion="gh ",
+            actions=[ProcAction("Complete gh trigger", ["albert", "show", "gh "])],
+        )
