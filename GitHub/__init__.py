@@ -17,7 +17,7 @@ __trigger__ = "gh "
 __author__ = "Tsubasa Takayama"
 __dependencies__ = []
 
-iconPath = "%s/%s.svg" % (os.path.dirname(__file__), __name__)
+iconPath = "%s/GitHub.svg" % (os.path.dirname(__file__))
 baseUrl = "https://api.github.com"
 filePrefix = "{0}/{1}_".format(cacheLocation(), __prettyname__)
 cachePath = filePrefix + "cache.json"
