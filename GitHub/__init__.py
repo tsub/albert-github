@@ -25,6 +25,8 @@ accessTokenPath = filePrefix + "access_token"
 
 
 def parseLinkHeader(link_header):
+    if not link_header:
+        return {}
     links = [l.strip() for l in link_header.split(",")]
     rels = {}
     pattern = r'<(?P<url>.*)>;\s*rel="(?P<rel>.*)"'
